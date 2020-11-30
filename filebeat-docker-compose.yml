@@ -1,0 +1,23 @@
+version: '2.2'
+services:
+  filebeat:
+    container_name: filebeat
+    hostname: filebeat
+    user: root #To read the docker socket
+    image: "docker.elastic.co/beats/filebeat:7.10.0"
+    volumes:
+      - ${PWD}/config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - fbdata:/usr/share/filebeat/data/
+    environment:
+      - output.elasticsearch.hosts=["es01:9200"]
+      - setup.kibana.host=kibana:5601
+#    depends_on:
+#      elasticsearch: { condition: service_healthy }
+    command: filebeat -e -strict.perms=false
+#networks:
+#  host:
+#    external: true
+volumes:
+  fbdata:
